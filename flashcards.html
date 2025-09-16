@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Quizlet-Style Flashcards</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      text-align: center;
+      padding: 30px;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    .flashcard-container {
+      perspective: 1000px;
+      margin: 40px auto;
+      width: 400px;
+      height: 250px;
+    }
+
+    .flashcard {
+      width: 100%;
+      height: 100%;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
+      position: relative;
+    }
+
+    .flashcard.is-flipped {
+      transform: rotateY(180deg);
+    }
+
+    .front, .back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      padding: 30px;
+      backface-visibility: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5em;
+      border-radius: 10px;
+    }
+
+    .front {
+      background: #ffffff;
+    }
+
+    .back {
+      background: #d0f0ff;
+      transform: rotateY(180deg);
+    }
+
+    .nav-buttons {
+      margin-top: 20px;
+    }
+
+    button {
+      font-size: 18px;
+      padding: 10px 20px;
+      margin: 0 15px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    .card-count {
+      margin-top: 10px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Spanish ➜ English Flashcards</h1>
+
+  <div class="flashcard-container">
+    <div class="flashcard" id="flashcard">
+      <div class="front" id="card-front">Loading...</div>
+      <div class="back" id="card-back">Loading...</div>
+    </div>
+  </div>
+
+  <div class="nav-buttons">
+    <button onclick="prevCard()">← Prev</button>
+    <button onclick="nextCard()">Next →</button>
+  </div>
+
+  <div class="card-count" id="card-count"></div>
+
+  <script>
+    const flashcards = [
+      { term: "pensión", definition: "Guesthouse where you stay for a price" },
+      { term: "atardecer", definition: "Start of the evening, when the sun goes down" },
+      { term: "anochecer", definition: "End of the day, when night begins" },
+      { term: "salvar", definition: "To protect or save from danger" },
+      { term: "matutino", definition: "Related to the morning" },
+      { term: "féretro", definition: "Coffin; the box used to bury the dead" },
+      { term: "brisa", definition: "A fresh and soft wind" },
+      { term: "cotidiana", definition: "Something done daily or regularly" },
+      { term: "licenciado", definition: "A person with a university degree" },
+      { term: "lujos", definition: "Luxuries; expensive, unnecessary items" },
+      { term: "librar", definition: "To free someone from a task or danger" },
+      { term: "forjar", definition: "To create or shape, especially metal" },
+      { term: "tertulias", definition: "Group conversations or discussions" },
+      { term: "pretender", definition: "To want or aim for something; to claim" },
+      { term: "mediar", definition: "To mediate or intervene in a dispute" },
+      { term: "desfilar", definition: "To march in formation" },
+      { term: "ilusión", definition: "Illusion or fantasy; not real" },
+      { term: "rompecabezas", definition: "Puzzle or difficult problem" },
+      { term: "disfraz", definition: "Costume that hides someone's identity" },
+      { term: "jaque mate", definition: "Checkmate in chess; no escape left" },
+      { term: "macizo", definition: "Solid, hard, and well-founded" },
+      { term: "la arista", definition: "Edge or boundary line" },
+      { term: "la tubería", definition: "Pipe used to carry water or gas" },
+      { term: "el musgo", definition: "Green moss that grows in damp areas" },
+      { term: "el caracol", definition: "Snail; soft-bodied animal with a shell" },
+      { term: "delatar", definition: "To report or accuse someone" },
+      { term: "las chanclas", definition: "Flip-flops or open-back sandals" },
+      { term: "flameante", definition: "Flaming or brightly lit" },
+      { term: "proporcionar", definition: "To give or provide" },
+      { term: "empapar", definition: "To soak or saturate with liquid" },
+      { term: "bofetada", definition: "Slap with an open hand" },
+      { term: "brotar", definition: "To sprout or begin growing" },
+      { term: "bodega", definition: "Storage place, often for wine or food" },
+      { term: "entierro", definition: "The act of burying something" },
+      { term: "el foco", definition: "Light bulb or light source" },
+      { term: "secretaría", definition: "Government department or ministry" },
+      { term: "vespertino", definition: "Related to the afternoon" },
+      { term: "trecho", definition: "Distance between two points" },
+      { term: "pensión", definition: "Monthly retirement payment from a job" },
+      { term: "escalafones", definition: "Employee rankings based on seniority" },
+      { term: "hedor", definition: "Bad smell" },
+      { term: "cachos", definition: "Chunks or pieces of something" },
+      { term: "correr a una persona", definition: "To fire someone from a job" },
+      { term: "cartapacio", definition: "Folder for holding papers" },
+      { term: "concurrir", definition: "To attend or gather at a place" },
+      { term: "aminorar", definition: "To reduce or decrease" },
+      { term: "descreído", definition: "Non-believer; not religious" },
+      { term: "guasón", definition: "Joker; someone who mocks or jokes a lot" },
+      { term: "percatarse de", definition: "To notice or realize something" },
+      { term: "tergiversar", definition: "To misinterpret or twist information" },
+      { term: "girar", definition: "To issue a payment order" },
+      { term: "laxo", definition: "Loose or relaxed" },
+      { term: "efímera", definition: "Short-lived; brief" },
+      { term: "azotea", definition: "Flat rooftop" },
+      { term: "doblegarse", definition: "To give in or surrender" },
+      { term: "toparse con algo/alguien", definition: "To bump into or find by chance" },
+      { term: "canoso", definition: "Gray-haired" }
+    ];
+
+    let currentIndex = 0;
+    const card = document.getElementById("flashcard");
+    const front = document.getElementById("card-front");
+    const back = document.getElementById("card-back");
+    const countDisplay = document.getElementById("card-count");
+
+    function updateCard() {
+      card.classList.remove("is-flipped");
+      front.textContent = flashcards[currentIndex].term;
+      back.textContent = flashcards[currentIndex].definition;
+      countDisplay.textContent = `Card ${currentIndex + 1} of ${flashcards.length}`;
+    }
+
+    function nextCard() {
+      currentIndex = (currentIndex + 1) % flashcards.length;
+      updateCard();
+    }
+
+    function prevCard() {
+      currentIndex = (currentIndex - 1 + flashcards.length) % flashcards.length;
+      updateCard();
+    }
+
+    card.addEventListener("click", () => {
+      card.classList.toggle("is-flipped");
+    });
+
+    // Initialize
+    updateCard();
+  </script>
+</body>
+</html>
